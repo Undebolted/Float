@@ -1,6 +1,5 @@
 local FloatingGuiLib = {}
 
-
 local function CBG()
 	local gui = Instance.new("BillboardGui")
 	gui.Size = UDim2.new(0, 200, 0, 100)
@@ -35,7 +34,8 @@ local function CB(text, callback)
 end
 
 local function CT(label, initial, callback)
-	local btn; btn = CB(label .. ": " .. (initial and "ON" or "OFF"), function()
+	local btn
+	btn = CB(label .. ": " .. (initial and "ON" or "OFF"), function()
 		initial = not initial
 		btn.Text = label .. ": " .. (initial and "ON" or "OFF")
 		callback(initial)
@@ -43,7 +43,16 @@ local function CT(label, initial, callback)
 	return btn
 end
 
-
+local function CL(text)
+	local lbl = Instance.new("TextLabel")
+	lbl.Size = UDim2.new(1, 0, 0, 30)
+	lbl.BackgroundTransparency = 1
+	lbl.TextColor3 = Color3.new(1, 1, 1)
+	lbl.Font = Enum.Font.SourceSans
+	lbl.TextSize = 18
+	lbl.Text = text
+	return lbl
+end
 
 function FloatingGuiLib.CreateAbove(part)
 	local gui = CBG()
@@ -58,6 +67,9 @@ function FloatingGuiLib.CreateAbove(part)
 
 	gui.Parent = game.Players.LocalPlayer.PlayerGui
     gui.Adornee = part
+
+	local textLabels = {}
+
 	return {
 		Gui = gui,
 		Frame = frame,
@@ -66,6 +78,17 @@ function FloatingGuiLib.CreateAbove(part)
 		end,
 		AddToggle = function(self, label, initial, callback)
 			CT(label, initial, callback).Parent = self.Frame
+		end,
+		AddLabel = function(self, text)
+			local label = CL(text)
+			label.Parent = self.Frame
+			table.insert(textLabels, label)
+			return {
+				SetText = function(_, newText)
+					label.Text = newText
+				end,
+				Instance = label
+			}
 		end,
 		DestroyAfter = function(self, seconds)
 			task.delay(seconds, function()
@@ -77,4 +100,5 @@ function FloatingGuiLib.CreateAbove(part)
 		end,
 	}
 end
-return FloatingGuiLib   
+
+return FloatingGuiLib
