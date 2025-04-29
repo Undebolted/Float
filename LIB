@@ -1,0 +1,80 @@
+local FloatingGuiLib = {}
+
+
+local function CBG()
+	local gui = Instance.new("BillboardGui")
+	gui.Size = UDim2.new(0, 200, 0, 100)
+	gui.StudsOffset = Vector3.new(0, 3, 0)
+	gui.AlwaysOnTop = true
+	gui.Name = "FloatingGui"
+	gui.ClipsDescendants = false
+	gui.Active = true 
+	return gui
+end
+
+local function CF()
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(1, 0, 1, 0)
+	frame.BackgroundTransparency = 0.3
+	frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	frame.BorderSizePixel = 0
+	frame.Name = "MainFrame"
+	return frame
+end
+
+local function CB(text, callback)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, 0, 0, 30)
+	btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.SourceSansBold
+	btn.TextSize = 18
+	btn.Text = text
+	btn.MouseButton1Click:Connect(callback)
+	return btn
+end
+
+local function CT(label, initial, callback)
+	local btn; btn = CB(label .. ": " .. (initial and "ON" or "OFF"), function()
+		initial = not initial
+		btn.Text = label .. ": " .. (initial and "ON" or "OFF")
+		callback(initial)
+	end)
+	return btn
+end
+
+
+
+function FloatingGuiLib.CreateAbove(part)
+	local gui = CBG()
+	local frame = CF()
+	frame.Parent = gui
+
+	local uiList = Instance.new("UIListLayout")
+	uiList.FillDirection = Enum.FillDirection.Vertical
+	uiList.SortOrder = Enum.SortOrder.LayoutOrder
+	uiList.Padding = UDim.new(0, 4)
+	uiList.Parent = frame
+
+	gui.Parent = game.Players.LocalPlayer.PlayerGui
+    gui.Adornee = part
+	return {
+		Gui = gui,
+		Frame = frame,
+		AddButton = function(self, text, callback)
+			CB(text, callback).Parent = self.Frame
+		end,
+		AddToggle = function(self, label, initial, callback)
+			CT(label, initial, callback).Parent = self.Frame
+		end,
+		DestroyAfter = function(self, seconds)
+			task.delay(seconds, function()
+				if self.Gui then self.Gui:Destroy() end
+			end)
+		end,
+		Destroy = function(self)
+			if self.Gui then self.Gui:Destroy() end
+		end,
+	}
+end
+return FloatingGuiLib   
