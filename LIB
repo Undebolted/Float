@@ -1,23 +1,29 @@
 local FloatingGuiLib = {}
 
-local function CBG(sizeToFit)
+local function CBG(sizeConstraint)
 	local gui = Instance.new("BillboardGui")
-	gui.Size = sizeToFit and UDim2.new(0, 200, 0, 0) or UDim2.new(0, 200, 0, 100)
+	gui.Size = UDim2.new(0, 200, 0, 100)
 	gui.StudsOffset = Vector3.new(0, 3, 0)
 	gui.AlwaysOnTop = true
 	gui.Name = "FloatingGui"
 	gui.ClipsDescendants = false
 	gui.Active = true 
+	gui.Size = sizeConstraint or gui.Size
 	return gui
 end
 
-local function CF()
+local function CF(adaptive)
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1, 0, 1, 0)
 	frame.BackgroundTransparency = 0.3
 	frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 	frame.BorderSizePixel = 0
 	frame.Name = "MainFrame"
+	if adaptive then
+		frame.AutomaticSize = Enum.AutomaticSize.Y
+		frame.Size = UDim2.new(1, 0, 0, 0)
+	else
+		frame.Size = UDim2.new(1, 0, 1, 0)
+	end
 	return frame
 end
 
@@ -54,11 +60,11 @@ local function CL(text)
 	return lbl
 end
 
-function FloatingGuiLib.CreateAbove(part, adaptSize)
-	local gui = CBG(adaptSize)
-	local frame = CF()
-	frame.Size = adaptSize and UDim2.new(1, 0, 0, 0) or frame.Size
-	frame.AutomaticSize = adaptSize and Enum.AutomaticSize.Y or Enum.AutomaticSize.None
+function FloatingGuiLib.CreateAbove(part, options)
+	options = options or {}
+	local adaptive = options.AdaptiveSize or false
+	local gui = CBG(options.GuiSize)
+	local frame = CF(adaptive)
 	frame.Parent = gui
 
 	local uiList = Instance.new("UIListLayout")
